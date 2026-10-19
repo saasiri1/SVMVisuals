@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A silent, step-by-step SVM lesson. See the maximum margin, support vectors, soft margins and kernel trick, with worked calculations and interactive experiments.">
+<title>SVM Visuals · From points to a maximum-margin classifier</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1115;--surface:#131b21;--stage:#10171d;--text:#edf2f5;--muted:#a4b3be;--line:#2c3942;--accent:#b4a6ff;--accent-bg:#25233b;--neg:#65d5da;--pos:#ffab8d;--yellow:#f5dc87;--grid:#24303a;--shadow:0 15px 60px #0003}
+body.light{color-scheme:light;--bg:#f2f5f6;--surface:#fff;--stage:#f8fafb;--text:#192831;--muted:#526572;--line:#d2dde3;--accent:#6650c4;--accent-bg:#ece8fc;--neg:#007b85;--pos:#b74626;--yellow:#896300;--grid:#e1e8ed;--shadow:0 15px 60px #2442550b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,select,input{font:inherit}button,select{color:var(--text);border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:9px 13px}button{cursor:pointer}button:hover:not(:disabled),select:hover{border-color:var(--accent)}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button:disabled{opacity:.35;cursor:default}a{color:var(--accent)}main{max-width:1420px;margin:auto;padding:24px 30px 32px}.masthead{display:flex;gap:16px;align-items:center;margin-bottom:20px}.mark{width:50px;height:50px;border-radius:14px;display:grid;place-content:center;color:var(--bg);background:var(--accent);font-weight:800;font-size:25px;flex:none}.eyebrow,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.eyebrow{font-size:12px;font-weight:650;letter-spacing:1.8px;color:var(--accent);text-transform:uppercase}h1{font-size:clamp(22px,2.3vw,33px);letter-spacing:-.7px;line-height:1.2;margin:6px 0}header .right{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}.scene-count{font:13px ui-monospace,monospace;color:var(--muted);white-space:nowrap}.icon{min-width:42px}.lesson{border:1px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}.stage-head{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--line)}.stage-head .scene-name{font-size:14px;color:var(--muted)}.legend{margin-left:auto;display:flex;gap:18px;font-size:13px;white-space:nowrap}.legend span{display:flex;align-items:center;gap:7px}.dot{width:10px;height:10px;border-radius:50%;background:var(--neg);display:inline-block}.diamond{width:10px;height:10px;background:var(--pos);transform:rotate(45deg);display:inline-block}.lesson-body{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.85fr);min-height:480px;background:var(--stage)}.plot-wrap{position:relative;min-width:0;display:flex;align-items:center;padding:14px 4px 10px 16px}.plot-wrap svg{display:block;width:100%;height:100%;min-height:430px;max-height:560px;overflow:visible}.plot-wrap svg text{font-family:system-ui,sans-serif;fill:var(--text);font-size:13px}.plot-wrap svg .tick{fill:var(--muted);font-size:11px}.plot-wrap svg .sv-label{fill:var(--yellow);font-weight:650}.lesson-detail{border-left:1px solid var(--line);padding:28px 30px;display:flex;flex-direction:column;justify-content:center;min-width:0}.kicker{font-size:11px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;font-weight:700;margin-bottom:10px}.lesson-detail h2{font-size:clamp(23px,2.3vw,32px);line-height:1.18;letter-spacing:-.6px;margin:0 0 17px}.lesson-detail p{color:var(--muted);margin:0 0 14px;line-height:1.65}.equation{font:clamp(16px,1.6vw,22px)/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.5px;color:var(--text);white-space:pre-line;overflow-wrap:anywhere;padding:13px 0;margin-bottom:7px}.math-step{padding:8px 0;border-top:1px solid var(--line);font-size:15px}.math-step strong{color:var(--yellow)}.result{margin-top:14px;padding-left:13px;border-left:3px solid var(--accent);font-size:15px;color:var(--text)}.mini-table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 12px;font-variant-numeric:tabular-nums}.mini-table th{color:var(--muted);font-weight:500;text-align:left}.mini-table td,.mini-table th{padding:6px 9px;border-bottom:1px solid var(--line)}.mini-table tr.focus td{color:var(--yellow)}.caption{display:grid;grid-template-columns:38px 1fr;gap:13px;padding:20px 26px;border-top:1px solid var(--line);min-height:110px}.caption .number{font:20px ui-monospace,monospace;color:var(--accent);padding-top:2px}.caption h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin:0 0 6px}.caption p{margin:0;font-size:17px;max-width:1000px}.controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-top:1px solid var(--line);padding:15px 22px}.primary{background:var(--accent);color:var(--bg);font-weight:700;border-color:var(--accent);min-width:100px}.controls label{color:var(--muted);font-size:13px;display:flex;gap:8px;align-items:center}.controls .lesson-select{margin-left:8px}.timeline{display:flex;align-items:center;gap:3px;flex:1;min-width:90px;max-width:280px}.timeline button{padding:0;height:7px;min-width:0;flex:1;background:var(--line);border:0;border-radius:3px}.timeline button.done{background:var(--accent);opacity:.5}.timeline button.current{background:var(--accent);opacity:1;height:11px}.keyboard{color:var(--muted);font-size:12px;margin:12px 4px 17px}.chapters{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.chapters button{text-align:left;display:flex;align-items:center;gap:11px;font-size:13px;padding:12px 14px;border-radius:10px}.chapters button span{font:12px ui-monospace,monospace;color:var(--muted)}.chapters button.active{border-color:var(--accent);background:var(--accent-bg)}.chapters button.active span{color:var(--accent)}.lab-controls{border-top:1px solid var(--line);padding:17px 24px;display:none;gap:20px;align-items:center;flex-wrap:wrap}.lab-controls.visible{display:flex}.lab-controls label{min-width:170px;flex:1;max-width:330px;font-size:13px;color:var(--muted)}.lab-controls label span{display:flex;justify-content:space-between}.lab-controls input{width:100%;accent-color:var(--accent)}.lab-controls output{color:var(--text);font-variant-numeric:tabular-nums}.lab-controls .lab-note{font-size:12px;color:var(--muted);max-width:300px}.teacher{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}.teacher summary{cursor:pointer;color:var(--muted);font-size:14px}.teacher-content{padding:16px 0;display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:14px;color:var(--muted)}.teacher-content h3{color:var(--text);font-size:15px;margin:0 0 8px}.teacher-content p{margin:0 0 10px}footer{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:20px;padding-top:16px;font-size:12px;color:var(--muted)}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.quiz-options{display:flex;gap:8px;flex-wrap:wrap}.quiz-options button{flex:1;min-width:90px}.quiz-feedback{min-height:42px;margin-top:12px;font-size:14px;color:var(--yellow)}.progress-label{color:var(--muted);font-size:12px}.key{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-family:ui-monospace,monospace}.stage-tip{color:var(--muted);font-size:12px;padding-top:10px}.summary-flow{display:flex;flex-direction:column;gap:16px;padding:30px 40px;width:100%}.summary-flow div{padding:15px 18px;border-left:3px solid var(--accent);font-size:18px}.summary-flow small{display:block;color:var(--muted);font-size:13px;margin-top:5px}body:has(.lesson:fullscreen){overflow:hidden}.lesson:fullscreen{border:0;border-radius:0;background:var(--bg);height:100dvh;overflow:auto;padding:12px}.lesson:fullscreen .lesson-body{min-height:58vh}.lesson:fullscreen .plot-wrap svg{max-height:65vh}.lesson:fullscreen .caption{min-height:12vh}.lesson:fullscreen .controls{justify-content:center}
+@media(min-width:1600px){main{padding-top:35px}.lesson-body{min-height:560px}.plot-wrap svg{min-height:500px}.caption{min-height:124px}}@media(max-width:1000px){main{padding:17px}.lesson-body{grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr)}.lesson-detail{padding:23px}.chapters{grid-template-columns:repeat(3,1fr)}.controls .timeline{display:none}.legend{gap:11px}.masthead{gap:12px}.masthead .scene-count{display:none}}@media(max-width:720px){main{padding:13px 11px}.mark{width:40px;height:40px;font-size:22px}.eyebrow{font-size:9px;letter-spacing:1px}h1{font-size:21px}.masthead .right{gap:5px}.lesson-body{display:flex;flex-direction:column;min-height:0}.plot-wrap{padding:8px 8px 0}.plot-wrap svg{height:360px;min-height:330px;max-height:380px}.lesson-detail{border-left:0;border-top:1px solid var(--line);padding:20px 23px;min-height:220px}.lesson-detail h2{font-size:25px;margin-bottom:12px}.lesson-detail p{font-size:15px}.equation{font-size:18px;padding:6px 0}.stage-head{padding:12px 15px;flex-wrap:wrap;gap:6px}.stage-head .scene-name{font-size:12px}.legend{font-size:11px;gap:10px}.caption{padding:17px 18px;min-height:105px;gap:6px;grid-template-columns:30px 1fr}.caption p{font-size:15px}.caption h3{font-size:11px}.controls{padding:12px;gap:7px}.controls button{padding:8px 10px}.controls label{font-size:12px}.controls select{max-width:180px;font-size:12px;padding:9px}.controls .lesson-select{margin-left:0}.controls .primary{min-width:90px}.chapters{grid-template-columns:repeat(2,1fr);gap:6px}.chapters button{padding:10px 9px;font-size:12px;gap:7px}.teacher-content{grid-template-columns:1fr}.keyboard{font-size:11px}.lab-controls{padding:15px;gap:14px}.lab-controls label{min-width:130px}.lab-controls .lab-note{max-width:none}.summary-flow{padding:18px;gap:7px}.summary-flow div{font-size:15px;padding:9px 12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+<header class="masthead"><div class="mark" aria-hidden="true">∥</div><div><div class="eyebrow">Chapter 2.7 · Support Vector Machines</div><h1>From points to a maximum-margin classifier</h1></div><div class="right"><span class="scene-count" id="sceneCount"></span><button class="icon" id="theme" aria-label="Switch to light theme" title="Switch theme">◐</button></div></header>
+<section class="lesson" id="lesson" aria-label="SVM animated lesson">
+<div class="stage-head"><span class="scene-name" id="stageName">Training examples</span><div class="legend"><span><i class="dot"></i>Class −1</span><span><i class="diamond"></i>Class +1</span></div></div>
+<div class="lesson-body"><div class="plot-wrap" id="plotWrap"><svg id="plot" role="img" aria-labelledby="plotTitle plotDesc"></svg></div><div class="lesson-detail" id="detail"></div></div>
+<div class="lab-controls" id="labControls"><label id="cLabel"><span>C · penalty on violations <output id="cValue">1</output></span><input id="cRange" type="range" min="-1" max="2" step="0.1" value="0" aria-label="Soft margin C"></label><label id="gammaLabel"><span>γ · RBF locality <output id="gammaValue">1</output></span><input id="gammaRange" type="range" min="-1.3" max="1" step="0.1" value="0" aria-label="RBF gamma"></label><div class="lab-note" id="labNote">The boundary is fitted again when you change a parameter.</div></div>
+<div class="caption" aria-live="polite" aria-atomic="true"><div class="number" id="captionNumber">01</div><div><h3 id="captionTitle"></h3><p id="captionText"></p></div></div>
+<div class="controls"><button id="back" aria-label="Previous scene">‹ Back</button><button id="play" class="primary" aria-label="Play lesson">▶ Play</button><button id="next" aria-label="Next scene">Next ›</button><label class="lesson-select">Lesson <select id="mode"><option value="process">Process animation</option><option value="full">Full calculations</option><option value="lab">Explore C and γ</option></select></label><div class="timeline" id="timeline" aria-label="Scene navigation"></div><label>Speed <select id="speed" aria-label="Playback speed"><option value="0.65">0.65×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><button class="icon" id="fullscreen" aria-label="Enter fullscreen">⛶</button></div>
+</section>
+<p class="keyboard">Silent classroom animation <span aria-hidden="true">·</span> <span class="key">Space</span> play / pause <span aria-hidden="true">·</span> <span class="key">←</span> <span class="key">→</span> change scene <span aria-hidden="true">·</span> <span class="key">F</span> fullscreen</p>
+<nav class="chapters" id="chapters" aria-label="Lesson chapters"></nav>
+<details class="teacher"><summary>Teaching notes, data and references</summary><div class="teacher-content"><div><h3>How to use the lesson</h3><p>Use Process animation for intuition. Use Full calculations to write down the arithmetic. Explore C and γ fits small SVM models in your browser. Pause at any scene and ask students to predict the next change.</p><p>The eight-point linear dataset is a deliberately simple teaching example. Features have arbitrary, comparable units. The lift z = x₁² + x₂² demonstrates feature engineering. It is distinct from the three-coordinate polynomial feature map in the worked kernel example.</p><p>Candidate boundaries and the widening-margin sequence illustrate the geometry. They are not optimizer iterations. Explore mode solves the SVM dual numerically, so its boundaries respond to the data and parameters.</p></div><div><h3>Mathematical details</h3><p>Linear example: w = (0.5, 0.5), b = −3. Support vectors: N3 = (2,2), P1 = (4,4). Both dual coefficients are 0.25. One-sided margin = √2, full width = 2√2.</p><p>Soft-margin objective: ½‖w‖² + C Σξᵢ, with yᵢf(xᵢ) ≥ 1 − ξᵢ and ξᵢ ≥ 0. The small deterministic browser solver uses sequential minimal optimization. Dashed contours indicate f = −1 and f = +1. Their geometric width formula applies to the linear feature space.</p><p>References: <a href="https://scikit-learn.org/stable/modules/svm.html" target="_blank" rel="noopener">SVM user guide</a>, <a href="https://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html" target="_blank" rel="noopener">RBF parameters</a>, and your Chapter 2_7 SVM slides. No external libraries or network connection are needed for this animation.</p></div></div></details>
+<footer><span>Prepared for Applied ML · SVM classroom visuals</span><a href="https://saasiri1.github.io/DecisionTreeVisuals/" target="_blank" rel="noopener">Decision Tree & Random Forest companion ↗</a></footer>
+</main>
+<script>
+'use strict';
+(()=>{
+const $=id=>document.getElementById(id), neg='var(--neg)',pos='var(--pos)',accent='var(--accent)',yellow='var(--yellow)';
+const base=[{id:'N1',x:1,y:2,c:-1},{id:'N2',x:2,y:1,c:-1},{id:'N3',x:2,y:2,c:-1},{id:'N4',x:1,y:1,c:-1},{id:'P1',x:4,y:4,c:1},{id:'P2',x:4,y:5,c:1},{id:'P3',x:5,y:4,c:1},{id:'P4',x:5,y:5,c:1}];
+const rings=[...Array.from({length:8},(_,i)=>({id:'I'+(i+1),x:Math.cos(i*Math.PI/4)*.65,y:Math.sin(i*Math.PI/4)*.65,c:-1})),...Array.from({length:12},(_,i)=>({id:'O'+(i+1),x:Math.cos(i*Math.PI/6)*2,y:Math.sin(i*Math.PI/6)*2,c:1}))];
+const noisy=[...base,{id:'O',x:4.2,y:4.1,c:-1}];
+const fmt=(v,n=3)=>Math.abs(v)<1e-8?'0':Number(v.toFixed(n)).toString();
+const scenes=[];
+function add(ch,title,caption,body,math='',opts={}){scenes.push({ch,title,caption,body,math,kind:'linear',boundary:false,margin:0,threshold:6,...opts});}
+add(0,'Start with labeled examples','Each point has two features and a known class. The model must learn how to classify a new point.','Eight examples, two features','x = (x₁, x₂)\ny ∈ {−1, +1}',{table:true,arrive:1,duration:8500});
+add(0,'Place the examples in feature space','Move each row to its position. Circles are class −1. Diamonds are class +1.','Rows become points','N3 = (2, 2), y = −1\nP1 = (4, 4), y = +1',{arrive:0,table:true});
+add(1,'Find a separating boundary','A line can separate these classes. But many different lines classify all eight examples correctly.','A boundary divides the plane','w · x + b = 0',{boundary:true,threshold:4.6});
+add(1,'Another line also separates','This line also has zero training errors. Its nearest point is very close to the boundary.','Same training accuracy','x₁ + x₂ = 7.5',{boundary:true,threshold:7.5,nearest:true});
+add(1,'Choose a balanced separator','Moving the boundary toward the middle gives more clearance from the closest examples on both sides.','A better geometric choice','x₁ + x₂ = 6',{boundary:true,threshold:6});
+add(2,'Measure the closest distance','The margin is the perpendicular distance to the nearest training example. Measure across the boundary, not along an axis.','The one-sided margin','γ = minᵢ |w · xᵢ + b| / ‖w‖',{boundary:true,distances:true,sv:true});
+add(2,'Widen the empty corridor','Expand both sides of the corridor until the first examples touch its edges.','Make the margin larger','The closest points limit the width.',{boundary:true,margin:.45});
+add(2,'Reach the maximum margin','The dashed lines touch N3 and P1. Widening farther would put training points inside the margin.','The widest feasible corridor','x₁ + x₂ = 4\nx₁ + x₂ = 8',{boundary:true,margin:2,sv:true,distances:true});
+add(3,'Meet the support vectors','The highlighted observations support the margin. In this example, the other six observations do not determine the boundary.','N3 and P1 determine the boundary','N3 = (2, 2)\nP1 = (4, 4)',{boundary:true,margin:2,sv:true});
+add(3,'Remove points far from the margin','The same boundary remains when we remove the other six points. The two support vectors still constrain it.','Keep only the support vectors','The maximum-margin line stays in place.',{boundary:true,margin:2,sv:true,onlySV:1});
+add(3,'Move a support vector','Move N3 toward the other class. The optimal boundary shifts and the margin becomes narrower.','Support vectors affect the solution','N3: (2,2) → (2.5,2.5)',{boundary:true,margin:1.5,sv:true,svMove:.5,threshold:6.5});
+add(3,'Restore the original example','Return N3 to its original position. We will use this exact, simple model for the calculations.','A model we can calculate by hand','w = (0.5, 0.5)\nb = −3',{boundary:true,margin:2,sv:true});
+add(4,'Write the decision score','Multiply each feature by its weight, then add the bias. The sign selects a class. A score is not a probability.','The decision function','f(x) = 0.5x₁ + 0.5x₂ − 3',{boundary:true,margin:2});
+add(4,'Calculate the weight norm','The weight norm converts the decision score into a perpendicular distance.','Step 1 · calculate ‖w‖','‖w‖ = √(0.5² + 0.5²)\n= √0.5 = 0.7071',{boundary:true,margin:2,fullOnly:true});
+add(4,'Calculate the margin width','Each margin is 1.414 units from the decision boundary. The full corridor is twice that distance.','Step 2 · calculate distances','One side: 1 / 0.7071 = 1.414\nFull width: 2 / 0.7071 = 2.828',{boundary:true,margin:2,distances:true,fullOnly:true});
+add(4,'Check the margin constraints','A support vector lies on a canonical margin boundary. For either class, its signed margin yᵢf(xᵢ) equals 1.','Step 3 · check both support vectors','N3: f(2,2) = −1; y f = 1\nP1: f(4,4) = +1; y f = 1',{boundary:true,margin:2,sv:true,fullOnly:true});
+add(5,'A new point arrives','This point has features (5,2). Its class is unknown. Use the trained boundary to predict it.','Predict Q = (5, 2)','What is the sign of f(Q)?',{boundary:true,margin:2,query:{x:5,y:2,c:0},queryStart:true});
+add(5,'Substitute the new features','Compute both weighted contributions and then add the bias.','Calculate the decision score','f(Q) = 0.5(5) + 0.5(2) − 3\n= 2.5 + 1 − 3 = +0.5',{boundary:true,margin:2,query:{x:5,y:2,c:0}});
+add(5,'Predict the class from the sign','The score is positive, so Q receives class +1. It lies inside the margin corridor, which is allowed for a new prediction.','The prediction is +1','sign(+0.5) = +1',{boundary:true,margin:2,query:{x:5,y:2,c:1},showRegions:true});
+add(5,'Check the other side','For R = (2,3), the score is −0.5. A negative score predicts class −1.','The prediction is −1','f(R) = 1 + 1.5 − 3 = −0.5',{boundary:true,margin:2,query:{x:2,y:3,c:-1,id:'R'},showRegions:true,fullOnly:true});
+add(6,'Real data can overlap','A new class −1 observation appears among class +1 examples. A perfectly clean corridor is no longer possible.','Add a conflicting observation','O = (4.2, 4.1), y = −1',{boundary:true,margin:2,outlier:true,sv:true});
+add(6,'Allow margin violations','Soft-margin SVM trades a wider margin against violations. The variable ξ measures how far an example falls short of its required signed score.','A penalty for difficult examples','ξᵢ = max(0, 1 − yᵢ f(xᵢ))',{boundary:true,margin:2,outlier:true,loss:true});
+add(6,'Calculate the violation','The difficult point has the wrong score sign. Its slack exceeds 1, which indicates a classification error.','The outlier’s hinge loss','f(O) = 0.5(4.2) + 0.5(4.1) − 3 = 1.15\ny f = −1.15\nξ = max(0, 1 + 1.15) = 2.15',{boundary:true,margin:2,outlier:true,loss:true,fullOnly:true});
+add(6,'Understand the C trade-off','C weights the penalty on margin violations. A larger C makes violations more expensive. It does not guarantee perfect classification.','Soft-margin objective','min ½‖w‖² + C Σ ξᵢ',{boundary:true,margin:2,outlier:true,cCompare:true});
+add(7,'A straight line has a limitation','The inner circles belong to class −1. The outer diamonds belong to class +1. No straight line can separate the entire inner group from the ring.','When the pattern is nonlinear','Inner radius = 0.65\nOuter radius = 2',{kind:'radial',boundary:true,threshold:0});
+add(7,'Try different straight lines','Rotating the line does not solve the problem. Each half-plane still contains observations from both classes.','Changing the angle is insufficient','We need a different representation.',{kind:'radial',boundary:true,rotation:1.1});
+add(7,'Add a distance-based feature','Add z = x₁² + x₂². The inner points have low height. The outer ring has high height. Watch the points lift.','Map the representation','(x₁, x₂) ↦ (x₁, x₂, z)\nz = x₁² + x₂²',{kind:'mapping',lift:0});
+add(7,'The classes separate by height','The same data now admit a separating plane between the inner points and the outer ring.','A plane separates the lifted points','Inner z = 0.4225\nOuter z = 4',{kind:'mapping',lift:1});
+add(7,'Separate with a plane','The plane z = 2 lies between the classes. This is a feature-engineering illustration, not a fitted SVM plane.','A linear boundary in the new space','z − 2 = 0',{kind:'mapping',lift:1,plane:true});
+add(7,'Return to the original space','In the original coordinates, z = 2 becomes x₁² + x₂² = 2. The plane corresponds to a circle.','A nonlinear input-space boundary','x₁² + x₂² = 2',{kind:'radial',circle:true});
+add(8,'Compare points in a new space','A kernel gives the inner product of mapped feature vectors. We can compute the value without constructing those vectors.','The kernel trick','K(x,z) = φ(x) · φ(z)',{kind:'kernel',kernelStep:0});
+add(8,'Use a degree-two polynomial kernel','For this example, use the homogeneous kernel K(x,z) = (x · z)². It implicitly contains squared features and an interaction.','A particular polynomial kernel','φ(x) = (x₁², x₂², √2 x₁x₂)',{kind:'kernel',kernelStep:1});
+add(8,'Expand the inner product','The √2 factors multiply to 2. This supplies the cross term in the square expansion.','Why the feature map works','φ(x) · φ(z)\n= x₁²z₁² + x₂²z₂² + 2x₁x₂z₁z₂\n= (x₁z₁ + x₂z₂)²',{kind:'kernel',kernelStep:1,fullOnly:true});
+add(8,'Take the shortcut','Using the same vectors as the slides, first compute the dot product in the original two dimensions.','x = (4,9), z = (3,3)','x · z = 4×3 + 9×3\n= 12 + 27 = 39',{kind:'kernel',kernelStep:2});
+add(8,'Square the result','The kernel value is 1521. This number measures the mapped inner product. It does not predict a class by itself.','The direct kernel calculation','K(x,z) = 39² = 1521',{kind:'kernel',kernelStep:3});
+add(8,'Verify the explicit mapping','The long route gives the same value. The kernel avoids storing the mapped coordinates.','Both routes agree','φ(x) = (16,81,36√2)\nφ(z) = (9,9,9√2)\n144 + 729 + 648 = 1521',{kind:'kernel',kernelStep:4,fullOnly:true});
+add(9,'Predict using support vectors','The dual representation adds kernel comparisons with support vectors. The class label yᵢ supplies the sign of each contribution.','A weighted sum of comparisons','f(x) = Σ αᵢ yᵢ K(xᵢ,x) + b',{boundary:true,margin:2,sv:true,onlySV:1,query:{x:5,y:2,c:0},dual:true});
+add(9,'Calculate the dual prediction','For the linear example, αN3 = αP1 = 0.25. Their kernel contributions reproduce the same decision score.','Verify Q = (5,2) again','K(N3,Q)=14; K(P1,Q)=28\nf(Q)=0.25(−1)(14)+0.25(+1)(28)−3\n= −3.5 + 7 − 3 = +0.5',{boundary:true,margin:2,sv:true,onlySV:1,query:{x:5,y:2,c:1},dual:true,fullOnly:true});
+add(10,'See the RBF similarity','The RBF kernel gives large values to nearby points and small values to distant points. The reference point is the center of these similarity bands.','Similarity falls with distance','K(x,z) = exp(−γ‖x−z‖²)',{kind:'rbf',gamma:.3});
+add(10,'Increase gamma','With larger γ, similarity decays more rapidly. Each example has a more local influence. The final classifier combines many such influences.','γ controls locality','At distance 1:\nγ = 0.3: K ≈ 0.741\nγ = 3: K ≈ 0.050',{kind:'rbf',gamma:3});
+add(11,'Check your understanding','Pause and answer before showing the result. The margin is perpendicular to the boundary.','Which points determine the clean linear margin?','',{boundary:true,margin:2,quiz:true,duration:14000});
+add(11,'The complete SVM idea','Learn a margin-based boundary. Use support vectors to predict. Use a kernel when nonlinear structure requires it. Choose settings with validation data.','From training data to predictions','Fit on training data.\nTune C and γ with cross-validation.\nEvaluate once on held-out test data.',{kind:'summary',duration:10000});
+const labScenes=[
+{ch:0,title:'Explore the soft-margin penalty',caption:'Change C and watch a linear SVM refit the overlapping examples. Rings mark support vectors. The dark boundary is f = 0; dashed lines are f = ±1.',body:'C changes the fitted trade-off',kind:'labLinear',math:'',duration:10000},
+{ch:1,title:'Explore an RBF decision boundary',caption:'Change γ and C to refit the nonlinear dataset. Larger γ creates more local influence. Training fit alone cannot tell us which settings generalize best.',body:'C and γ work together',kind:'labRbf',math:'',duration:10000}
+];
+const chapters=['The labeled data','Candidate boundaries','The maximum margin','Support vectors','The linear equations','Predict a new point','Soft margin and C','Lift nonlinear data','The kernel trick','The dual prediction','RBF and gamma','Check and recap'];
+let index=0,mode='process',playing=false,timer=null,speed=1,frame=0,startTime=0,from=null,target=null,current=null,labModel=null,C=1,G=1;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+function active(){return mode==='lab'?labScenes:scenes.filter(s=>mode==='full'||!s.fullOnly);}
+function stop(){playing=false;clearTimeout(timer);$('play').textContent='▶ Play';$('play').setAttribute('aria-label','Play lesson');}
+function schedule(){clearTimeout(timer);if(playing)timer=setTimeout(()=>{if(index>=active().length-1){stop();return;}index++;render();schedule();},(active()[index].duration||7300)/speed);}
+function togglePlay(){if(playing)stop();else{if(index===active().length-1){index=0;render();}playing=true;$('play').textContent='Ⅱ Pause';$('play').setAttribute('aria-label','Pause lesson');schedule();}}
+function go(i,manual=true){if(manual)stop();index=Math.max(0,Math.min(active().length-1,i));render();}
+function setMode(value){const prev=active()[index];stop();mode=value;$('mode').value=value;const list=active();index=Math.max(0,list.findIndex(s=>s===prev));render();}
+function normalizeScene(s){return {...s,arrive:s.arrive||0,margin:s.margin||0,threshold:s.threshold??6,svMove:s.svMove||0,onlySV:s.onlySV||0,lift:s.lift||0,rotation:s.rotation||0,gamma:s.gamma||1,queryX:s.query?.x??5,queryY:s.query?.y??6.7};}
+function render(){
+ const list=active(),s=list[index];$('sceneCount').textContent=`Scene ${index+1} / ${list.length}`;$('stageName').textContent=s.title;$('captionNumber').textContent=String(index+1).padStart(2,'0');$('captionTitle').textContent=s.title;$('captionText').textContent=s.caption;
+ $('back').disabled=index===0;$('next').disabled=index===list.length-1;
+ $('timeline').innerHTML=list.map((v,i)=>`<button class="${i===index?'current':i<index?'done':''}" data-scene="${i}" aria-label="Scene ${i+1}: ${v.title}" ${i===index?'aria-current="step"':''}></button>`).join('');
+ const names=mode==='lab'?['Linear SVM · change C','RBF SVM · change C and γ']:chapters;
+ $('chapters').innerHTML=names.map((v,ch)=>`<button data-chapter="${ch}" class="${s.ch===ch?'active':''}" ${s.ch===ch?'aria-current="step"':''}><span>${String(ch+1).padStart(2,'0')}</span>${v}</button>`).join('');
+ $('labControls').classList.toggle('visible',mode==='lab');$('gammaLabel').hidden=s.kind==='labLinear';
+ $('cValue').textContent=fmt(C,2);$('gammaValue').textContent=fmt(G,3);
+ labModel=null;if(s.kind.startsWith('lab'))labModel=train(s.kind==='labLinear'?noisy:rbfData(),C,s.kind==='labLinear'?'linear':'rbf',G);
+ renderDetail(s);
+ cancelAnimationFrame(frame);from=current||normalizeScene(s);target=normalizeScene(s);startTime=performance.now();
+ if(from.kind!==target.kind){from={...target};if(target.kind==='mapping')from.lift=current?.kind==='radial'?0:target.lift;}
+ function animate(now){const t=reduced.matches||target.kind.startsWith('lab')?1:Math.min(1,(now-startTime)/(1200/speed));const e=t*t*(3-2*t);current={...target};['arrive','margin','threshold','svMove','onlySV','lift','rotation','gamma','queryX','queryY'].forEach(k=>current[k]=from[k]+(target[k]-from[k])*e);draw(current);if(t<1)frame=requestAnimationFrame(animate);}
+ frame=requestAnimationFrame(animate);
+}
+function renderDetail(s){
+ let html=`<div class="kicker">${mode==='lab'?'Interactive experiment':mode==='full'?'Full calculations':'Process animation'}</div><h2>${s.body}</h2>`;
+ if(s.table)html+='<table class="mini-table"><thead><tr><th>Point</th><th>x₁</th><th>x₂</th><th>y</th></tr></thead><tbody>'+base.map(p=>`<tr class="${['N3','P1'].includes(p.id)?'focus':''}"><td>${p.id}</td><td>${p.x}</td><td>${p.y}</td><td>${p.c>0?'+1':'−1'}</td></tr>`).join('')+'</tbody></table>';
+ if(s.math)html+=`<div class="equation">${s.math}</div>`;
+ if(s.kind==='linear'&&s.sv)html+='<div class="result">Outlined points are support vectors.</div>';
+ if(s.cCompare)html+='<div class="math-step"><strong>Smaller C</strong> gives the margin term more relative weight.</div><div class="math-step"><strong>Larger C</strong> gives violations more relative weight.</div><button id="openLinearLab">Try changing C ↗</button>';
+ if(s.kind==='mapping')html+='<p>The points keep their original x₁ and x₂. Height is a new feature calculated from those inputs.</p><div class="result">A linear plane here can represent a curved boundary in the original coordinates.</div>';
+ if(s.kind==='kernel')html+='<div class="result">The two routes calculate the same inner product.</div>';
+ if(s.kind==='rbf')html+='<p>Each band marks equal similarity to the reference point. This is one kernel function, not the entire SVM decision boundary.</p><button id="openRbfLab">Explore the fitted RBF SVM ↗</button>';
+ if(s.kind==='summary')html+='<div class="result">Margin → support vectors → prediction → kernels</div><p>Next: explore the effect of C and γ, then discuss which settings to validate.</p><button id="openLinearLab">Explore C and γ ↗</button>';
+ if(s.quiz)html+='<div class="quiz-options"><button data-answer="all">All eight equally</button><button data-answer="sv">N3 and P1</button><button data-answer="far">N4 and P4</button></div><div class="quiz-feedback" id="feedback" aria-live="polite"></div>';
+ if(labModel){let errors=0,violations=0;labModel.data.forEach(p=>{let m=p.c*labModel.predict([p.x,p.y]);if(m<0)errors++;if(m<.999)violations++;});const sv=labModel.alpha.filter(v=>v>1e-5).length;html+=`<div class="equation">C = ${fmt(C,2)}${s.kind==='labRbf'?'    γ = '+fmt(G,3):''}</div><div class="math-step">Support vectors: <strong>${sv} / ${labModel.data.length}</strong></div><div class="math-step">Training classification errors: <strong>${errors}</strong></div><div class="math-step">Points with y f(x) &lt; 1: <strong>${violations}</strong></div>`;if(s.kind==='labLinear')html+=`<div class="equation">f(x) = ${fmt(labModel.w[0])}x₁\n + ${fmt(labModel.w[1])}x₂ ${labModel.b>=0?'+':'−'} ${fmt(Math.abs(labModel.b))}</div>`;html+='<p>Rings mark nonzero dual coefficients. An error is different from a margin violation. Some correctly classified points can lie inside the margin.</p><div class="stage-tip">Numerical SVM fit to this teaching dataset. A good training fit does not guarantee a good test fit.</div>';}
+ $('detail').innerHTML=html;
+ $('openLinearLab')?.addEventListener('click',()=>{setMode('lab');go(0);});$('openRbfLab')?.addEventListener('click',()=>{setMode('lab');go(1);});
+ $('detail').querySelectorAll('[data-answer]').forEach(b=>b.addEventListener('click',()=>{$('feedback').textContent=b.dataset.answer==='sv'?'Correct. N3 and P1 are closest to the boundary and determine this clean margin.':'Look for the two closest points on the dashed margin edges: N3 and P1.';}));
+}
+// A deterministic small-data SVM dual solver. alpha >= 0, alpha <= C, sum alpha_i y_i = 0.
+function train(data,C,kernel='linear',gamma=1){
+ const n=data.length,alpha=Array(n).fill(0),K=data.map(a=>data.map(b=>kernel==='linear'?a.x*b.x+a.y*b.y:Math.exp(-gamma*((a.x-b.x)**2+(a.y-b.y)**2))));let bias=0;
+ const score=i=>bias+alpha.reduce((sum,a,j)=>sum+a*data[j].c*K[j][i],0);
+ for(let sweep=0,quiet=0;sweep<2500&&quiet<12;sweep++){
+  let changed=0;
+  for(let i=0;i<n;i++){
+   const yi=data[i].c,Ei=score(i)-yi;
+   if(!((yi*Ei<-.00005&&alpha[i]<C-1e-8)||(yi*Ei>.00005&&alpha[i]>1e-8)))continue;
+   const order=Array.from({length:n},(_,j)=>j).filter(j=>j!==i).sort((a,b)=>Math.abs(Ei-(score(b)-data[b].c))-Math.abs(Ei-(score(a)-data[a].c)));
+   for(const j of order){
+    const yj=data[j].c,Ej=score(j)-yj,ai=alpha[i],aj=alpha[j];let L,H;
+    if(yi!==yj){L=Math.max(0,aj-ai);H=Math.min(C,C+aj-ai);}else{L=Math.max(0,ai+aj-C);H=Math.min(C,ai+aj);}
+    const eta=K[i][i]+K[j][j]-2*K[i][j];if(H-L<1e-10||eta<1e-12)continue;
+    const next=Math.min(H,Math.max(L,aj+yj*(Ei-Ej)/eta));if(Math.abs(next-aj)<1e-9)continue;
+    alpha[j]=next;alpha[i]=ai+yi*yj*(aj-next);
+    const b1=bias-Ei-yi*(alpha[i]-ai)*K[i][i]-yj*(alpha[j]-aj)*K[i][j];
+    const b2=bias-Ej-yi*(alpha[i]-ai)*K[i][j]-yj*(alpha[j]-aj)*K[j][j];
+    bias=alpha[i]>1e-8&&alpha[i]<C-1e-8?b1:alpha[j]>1e-8&&alpha[j]<C-1e-8?b2:(b1+b2)/2;changed++;break;
+   }
+  }quiet=changed?0:quiet+1;
+ }
+ const w=[0,0];alpha.forEach((a,i)=>{w[0]+=a*data[i].c*data[i].x;w[1]+=a*data[i].c*data[i].y;});
+ return {data,alpha,b:bias,w,predict:q=>kernel==='linear'?w[0]*q[0]+w[1]*q[1]+bias:alpha.reduce((sum,a,i)=>sum+a*data[i].c*Math.exp(-gamma*((q[0]-data[i].x)**2+(q[1]-data[i].y)**2)),bias)};
+}
+function rbfData(){return [...rings,{id:'I9',x:.1,y:.1,c:-1},{id:'I10',x:-.25,y:.2,c:-1},{id:'O13',x:1.1,y:.8,c:1},{id:'I11',x:1.6,y:-1,c:-1}];}
+function svgText(x,y,text,cls='',anchor='start'){return `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${text}</text>`;}
+function line(x1,y1,x2,y2,color='var(--line)',width=1,extra=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" ${extra}/>`;}
+function segment(a,b,c,lo,hi){const pts=[];if(Math.abs(b)>1e-10){for(const x of [lo,hi]){const y=(-c-a*x)/b;if(y>=lo-1e-8&&y<=hi+1e-8)pts.push([x,y]);}}if(Math.abs(a)>1e-10){for(const y of [lo,hi]){const x=(-c-b*y)/a;if(x>=lo-1e-8&&x<=hi+1e-8)pts.push([x,y]);}}return pts.length>1?[pts[0],pts.find(p=>Math.hypot(p[0]-pts[0][0],p[1]-pts[0][1])>1e-6)||pts[1]]:null;}
+function draw(s){
+ const width=Math.max(280,$('plotWrap').clientWidth-25),height=document.fullscreenElement?Math.max(330,Math.min(900,innerHeight*.58)):width<400?340:width<600?430:500;const svg=$('plot');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.style.height=height+'px';
+ const pad={l:48,r:22,t:32,b:45};const size=Math.min(width-pad.l-pad.r,height-pad.t-pad.b);const ox=pad.l+(width-pad.l-pad.r-size)/2,oy=pad.t+(height-pad.t-pad.b-size)/2;
+ const radial=['radial','mapping','labRbf','rbf'].includes(s.kind),lo=radial?-2.7:0,hi=radial?2.7:6;
+ const px=x=>ox+(x-lo)/(hi-lo)*size,py=y=>oy+size-(y-lo)/(hi-lo)*size;
+ let out='<title id="plotTitle">'+s.title+'</title><desc id="plotDesc">'+s.caption+'</desc><defs><clipPath id="plotClip"><rect x="'+ox+'" y="'+oy+'" width="'+size+'" height="'+size+'"/></clipPath></defs>';
+ if(s.kind==='summary'){
+  const items=[['Labeled examples','Learn from known classes'],['A wide margin','Balance separation and violations'],['Support vectors','Use their weighted contributions'],['A new prediction','Take the sign of the score'],['Kernels','Compare in an implicit feature space']];
+  const y0=30,dy=(height-55)/5;
+  items.forEach((a,i)=>{const y=y0+i*dy;out+=`<circle cx="44" cy="${y+14}" r="17" fill="var(--accent-bg)" stroke="${accent}"/>`+svgText(44,y+19,String(i+1),'','middle')+svgText(77,y+9,a[0])+svgText(77,y+30,a[1],'tick');if(i<4)out+=line(44,y+33,44,y+dy-7,'var(--line)',2);});svg.innerHTML=out;return;
+ }
+ if(s.kind==='kernel'){
+  const left=width*.14,right=width*.86,cy=height*.46;
+  out+=svgText(width/2,42,'Two routes · one inner product','','middle');
+  const box=(x,y,w,h,text,color=accent)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="var(--surface)" stroke="${color}"/>`+svgText(x+w/2,y+h/2+5,text,'','middle');
+  const bw=Math.min(190,width*.41);out+=box(width/2-bw/2,78,bw,49,'x = (4,9)   z = (3,3)');
+  const bx1=width*.04,bx2=width*.54,bww=width*.42;
+  out+=line(width/2,127,width*.25,cy-42,accent,1.5)+line(width/2,127,width*.75,cy-42,'var(--muted)',1.5);
+  out+=box(bx1,cy-42,bww,60,'Direct kernel',accent)+box(bx2,cy-42,bww,60,'Explicit map','var(--muted)');
+  out+=svgText(width*.25,cy+47,s.kernelStep>=2?'4×3 + 9×3 = 39':'(x · z)²','','middle');
+  out+=svgText(width*.75,cy+47,'φ(x) · φ(z)','','middle');
+  if(s.kernelStep>=1){out+=svgText(width*.75,cy+72,'2 features → 3 features','tick','middle');}
+  if(s.kernelStep>=3)out+=box(bx1,cy+96,bww,55,'39² = 1521',yellow);else out+=svgText(width*.25,cy+117,'No mapped vectors','tick','middle');
+  if(s.kernelStep>=4){out+=box(bx2,cy+96,bww,55,'144+729+648',yellow)+svgText(width*.75,cy+177,'= 1521','','middle');out+=svgText(width/2,height-25,'Same result, different route','','middle');}
+  else out+=svgText(width*.75,cy+119,'Build the mapped vectors','tick','middle');
+  svg.innerHTML=out;return;
+ }
+ if(s.kind==='mapping'){
+  const lift=s.lift;const project=(x,y,z)=>[width/2+(x-y)*size*.115, height*.7+(x+y)*size*.05-z*size*.095*lift];
+  const ground=[[-2.5,-2.5],[2.5,-2.5],[2.5,2.5],[-2.5,2.5]].map(p=>project(p[0],p[1],0));
+  out+=`<polygon points="${ground.map(p=>p.join(',')).join(' ')}" fill="var(--surface)" stroke="var(--line)"/>`;
+  const origin=project(-2.5,-2.5,0),a=project(2.8,-2.5,0),b=project(-2.5,2.8,0),z=project(-2.5,-2.5,5.4);
+  out+=line(...origin,...a,'var(--muted)')+line(...origin,...b,'var(--muted)')+line(...origin,...z,'var(--muted)');out+=svgText(a[0]+7,a[1],'x₁')+svgText(b[0]-20,b[1],'x₂')+svgText(z[0],z[1]-12,'z = x₁² + x₂²');
+  if(s.plane){const plane=[[-2.5,-2.5],[2.5,-2.5],[2.5,2.5],[-2.5,2.5]].map(p=>project(p[0],p[1],2));out+=`<polygon points="${plane.map(p=>p.join(',')).join(' ')}" fill="${accent}" fill-opacity=".15" stroke="${accent}" stroke-dasharray="6 4"/>`+svgText(width*.66,height*.45,'z = 2','sv-label');}
+  [...rings].sort((a,b)=>(a.x+a.y)-(b.x+b.y)).forEach(p=>{const zz=p.x*p.x+p.y*p.y,ground=project(p.x,p.y,0),p3=project(p.x,p.y,zz);out+=line(...ground,...p3,'var(--line)',1,'stroke-dasharray="3 4"')+point(p3[0],p3[1],p.c,p.id,false,false);});out+=svgText(width/2,30,lift>.9?'The outer ring is higher':'Lift points using a new feature','','middle');svg.innerHTML=out;return;
+ }
+ const ticks=radial?[-2,-1,0,1,2]:[0,1,2,3,4,5,6];
+ if(s.kind==='rbf'){
+  out+=`<g clip-path="url(#plotClip)">`;for(let y=lo;y<hi;y+=.12)for(let x=lo;x<hi;x+=.12){const k=Math.exp(-s.gamma*(x*x+y*y));out+=`<rect x="${px(x)}" y="${py(y+.12)}" width="${size*.12/(hi-lo)+.2}" height="${size*.12/(hi-lo)+.2}" fill="${accent}" opacity="${k*.65}"/>`;}out+='</g>';
+ }
+ if(labModel){
+  const step=(hi-lo)/38;out+='<g clip-path="url(#plotClip)">';
+  for(let y=lo;y<hi;y+=step)for(let x=lo;x<hi;x+=step){const f=labModel.predict([x+step/2,y+step/2]);out+=`<rect x="${px(x)}" y="${py(y+step)}" width="${size/38+.4}" height="${size/38+.4}" fill="${f>0?pos:neg}" opacity=".085"/>`;}
+  out+='</g>';
+ }else if(s.showRegions){out+=`<g clip-path="url(#plotClip)"><polygon points="${[[0,0],[6,0],[0,6]].map(p=>[px(p[0]),py(p[1])].join(',')).join(' ')}" fill="${neg}" opacity=".08"/><polygon points="${[[6,6],[6,0],[0,6]].map(p=>[px(p[0]),py(p[1])].join(',')).join(' ')}" fill="${pos}" opacity=".08"/></g>`;}
+ out+=`<g opacity="${1-(s.arrive||0)}">`;
+ for(const t of ticks){out+=line(px(t),oy,px(t),oy+size,'var(--grid)')+line(ox,py(t),ox+size,py(t),'var(--grid)')+svgText(px(t),oy+size+20,String(t),'tick','middle')+svgText(ox-12,py(t)+4,String(t),'tick','end');}
+ out+=`<rect x="${ox}" y="${oy}" width="${size}" height="${size}" fill="none" stroke="var(--line)"/>`+svgText(ox+size/2,oy+size+40,'Feature x₁ · arbitrary units','tick','middle')+`<text transform="translate(${Math.max(11,ox-35)},${oy+size/2}) rotate(-90)" text-anchor="middle" class="tick">Feature x₂ · arbitrary units</text></g>`;
+ if(s.kind==='rbf'){
+  for(const k of [.8,.5,.1]){const r=Math.sqrt(-Math.log(k)/s.gamma),rr=r/(hi-lo)*size;if(r<2.65){out+=`<circle cx="${px(0)}" cy="${py(0)}" r="${rr}" fill="none" stroke="${accent}" stroke-opacity=".75"/>`+svgText(px(r*.707),py(r*.707)-5,`K = ${k}`,'tick');}}
+  out+=point(px(0),py(0),0,'z',true,false)+svgText(px(0)+15,py(0)+25,'Reference z');svg.innerHTML=out;return;
+ }
+ if(s.kind==='linear'&&s.boundary){
+  if(s.margin>0){const m=s.margin,t=s.threshold;const polygon=[[0,t-m],[t-m,0],[t+m,0],[0,t+m]].map(([x,y])=>[px(x),py(y)].join(',')).join(' ');out+=`<g clip-path="url(#plotClip)"><polygon points="${polygon}" fill="${accent}" opacity=".12"/></g>`;for(const t2 of [t-m,t+m]){const seg=segment(1,1,-t2,0,6);if(seg)out+=line(px(seg[0][0]),py(seg[0][1]),px(seg[1][0]),py(seg[1][1]),accent,1.5,'stroke-dasharray="6 5"');}}
+  const seg=segment(1,1,-s.threshold,0,6);if(seg)out+=line(px(seg[0][0]),py(seg[0][1]),px(seg[1][0]),py(seg[1][1]),accent,2.5);
+  if(s.distances){const nv=2+s.svMove,mid=s.threshold/2;out+=line(px(nv),py(nv),px(mid),py(mid),yellow,2)+line(px(mid),py(mid),px(4),py(4),yellow,2);out+=`<circle cx="${px(mid)}" cy="${py(mid)}" r="3.5" fill="${yellow}"/>`;out+=svgText(px((nv+mid)/2)+12,py((nv+mid)/2)+9,'γ','sv-label')+svgText(px((4+mid)/2)+12,py((4+mid)/2)+9,'γ','sv-label');}
+  out+=svgText(ox+size-8,oy+16,'f(x) = 0','','end');
+ }
+ if(s.kind==='radial'&&s.boundary){const a=Math.cos(s.rotation),b=Math.sin(s.rotation)+.001,seg=segment(a,b,0,lo,hi);if(seg)out+=line(px(seg[0][0]),py(seg[0][1]),px(seg[1][0]),py(seg[1][1]),accent,2.5);}
+ if(s.circle)out+=`<circle cx="${px(0)}" cy="${py(0)}" r="${Math.sqrt(2)/(hi-lo)*size}" fill="${accent}" fill-opacity=".08" stroke="${accent}" stroke-width="2.5"/>`;
+ if(labModel){out+='<g clip-path="url(#plotClip)">';for(const level of [-1,0,1])out+=contour(labModel.predict,level,lo,hi,px,py,level===0?accent:'var(--muted)',level===0?2.2:1.1,level!==0);out+='</g>';}
+ const data=labModel?labModel.data:radial?rings:s.outlier?noisy:base;
+ data.forEach((p,i)=>{let x=p.x,y=p.y;if(p.id==='N3'){x+=s.svMove;y+=s.svMove;}const sv=labModel?labModel.alpha[i]>1e-5:s.sv&&['N3','P1'].includes(p.id),isSupport=['N3','P1'].includes(p.id);let xx=px(x),yy=py(y);
+  if(s.arrive){const rowx=ox+22,rowy=oy+15+i*(size-20)/8;xx=xx*(1-s.arrive)+rowx*s.arrive;yy=yy*(1-s.arrive)+rowy*s.arrive;}
+  const opacity=1-(s.onlySV||0)*(isSupport?0:.92);out+=`<g opacity="${opacity}">`+point(xx,yy,p.c,p.id,sv,s.kind==='linear')+'</g>';
+  if(p.id==='O')out+=svgText(xx+13,yy-13,'Outlier','sv-label');
+ });
+ if(s.query){let x=s.queryX,y=s.queryY;if(s.queryStart&&from&&!from.query)y=6.7+(s.query.y-6.7)*Math.min(1,(performance.now()-startTime)/1000);out+=point(px(x),py(y),s.query.c,s.query.id||'Q',true,true);if(s.dual){for(const p of [base[2],base[4]])out+=line(px(p.x),py(p.y),px(x),py(y),yellow,1.5,'stroke-dasharray="4 5"');}}
+ svg.innerHTML=out;
+}
+function point(x,y,c,id,sv,label){const color=c===-1?neg:c===1?pos:yellow;const shape=c===1?`<path d="M ${x} ${y-7} L ${x+7} ${y} L ${x} ${y+7} L ${x-7} ${y} Z" fill="${color}"/>`:`<circle cx="${x}" cy="${y}" r="${c===0?7:6}" fill="${color}"/>`;return (sv?`<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${yellow}" stroke-width="2"/>`:'')+shape+(label?svgText(x+12,y-10,id,sv?'sv-label':''):'');}
+function contour(predict,level,lo,hi,px,py,color,width,dashed){
+ const n=48,step=(hi-lo)/n,values=Array.from({length:n+1},(_,j)=>Array.from({length:n+1},(_,i)=>predict([lo+i*step,lo+j*step])-level));let path='';
+ for(let j=0;j<n;j++)for(let i=0;i<n;i++){const cs=[[i,j],[i+1,j],[i+1,j+1],[i,j+1]],hits=[];for(let k=0;k<4;k++){const a=cs[k],b=cs[(k+1)%4],va=values[a[1]][a[0]],vb=values[b[1]][b[0]];if((va>=0)!==(vb>=0)){const t=va/(va-vb);hits.push([lo+(a[0]+(b[0]-a[0])*t)*step,lo+(a[1]+(b[1]-a[1])*t)*step]);}}for(let k=0;k+1<hits.length;k+=2)path+=`M${px(hits[k][0])},${py(hits[k][1])}L${px(hits[k+1][0])},${py(hits[k+1][1])}`;}
+ return `<path d="${path}" fill="none" stroke="${color}" stroke-width="${width}" ${dashed?'stroke-dasharray="5 4"':''}/>`;
+}
+$('back').addEventListener('click',()=>go(index-1));$('next').addEventListener('click',()=>go(index+1));$('play').addEventListener('click',togglePlay);$('mode').addEventListener('change',e=>setMode(e.target.value));$('speed').addEventListener('change',e=>{speed=Number(e.target.value);schedule();});
+$('chapters').addEventListener('click',e=>{const b=e.target.closest('[data-chapter]');if(b)go(active().findIndex(s=>s.ch===Number(b.dataset.chapter)));});$('timeline').addEventListener('click',e=>{if(e.target.dataset.scene)go(Number(e.target.dataset.scene));});
+$('theme').addEventListener('click',()=>{const light=document.body.classList.toggle('light');$('theme').setAttribute('aria-label',light?'Switch to dark theme':'Switch to light theme');try{localStorage.setItem('svm-theme',light?'light':'dark');}catch{}});
+try{if(localStorage.getItem('svm-theme')==='light'){document.body.classList.add('light');$('theme').setAttribute('aria-label','Switch to dark theme');}}catch{}
+async function fullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else await $('lesson').requestFullscreen();}catch{ $('captionText').textContent='Fullscreen is unavailable in this preview. Open the standalone page in a browser for fullscreen.';}}
+$('fullscreen').addEventListener('click',fullscreen);document.addEventListener('fullscreenchange',()=>{$('fullscreen').setAttribute('aria-label',document.fullscreenElement?'Exit fullscreen':'Enter fullscreen');if(current)draw(current);});
+$('cRange').addEventListener('input',e=>{C=10**Number(e.target.value);stop();render();});$('gammaRange').addEventListener('input',e=>{G=10**Number(e.target.value);stop();render();});
+document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea,button,a,summary'))return;if(e.code==='Space'){e.preventDefault();togglePlay();}if(e.key==='ArrowRight'){e.preventDefault();go(index+1);}if(e.key==='ArrowLeft'){e.preventDefault();go(index-1);}if(e.key.toLowerCase()==='f')fullscreen();});
+new ResizeObserver(()=>{if(current)draw(current);}).observe($('plotWrap'));
+// The pure numerical functions can also run in local validation without a browser.
+window.SVMTeaching={train,base,rings,noisy,rbfData,scenes,labScenes};render();
+})();
+</script>
+</body></html>
